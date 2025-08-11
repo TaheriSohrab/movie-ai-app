@@ -1,0 +1,353 @@
+/* --- متغیرهای اصلی طراحی --- */
+:root {
+  --color-background: #10141f; /* آبی نفتی تیره */
+  --color-surface: #161d2f;   /* سطح کارت ها و ورودی */
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #c3c4c7;
+  --color-accent: #fc4747;      /* قرمز گوجه ای برای تاکید */
+  --color-outline: #5a698f;    /* رنگ بوردرها */
+
+  --font-family: 'Vazirmatn', sans-serif;
+  --border-radius-sm: 8px;
+  --border-radius-md: 14px;
+}
+
+/* --- استایل های عمومی --- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  direction: rtl;
+}
+
+.App {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 32px;
+}
+
+/* --- هدر --- */
+.app-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.app-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -1px;
+}
+
+.app-header p {
+  color: var(--color-text-secondary);
+  font-size: 1rem;
+  margin-top: 8px;
+}
+
+/* --- فرم جستجو --- */
+.search-form-container {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.search-icon {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  fill: var(--color-text-primary);
+}
+
+.search-input {
+  flex-grow: 1;
+  background-color: transparent;
+  border: none;
+  border-bottom: 2px solid var(--color-outline);
+  color: var(--color-text-primary);
+  font-family: var(--font-family);
+  font-size: 1.5rem;
+  padding: 16px 60px 16px 16px; /* فضای کافی برای آیکون ها */
+  transition: border-bottom-color 0.3s ease;
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: var(--color-text-secondary);
+  font-weight: 300;
+}
+
+.search-input:focus {
+  border-bottom-color: var(--color-accent);
+}
+
+.voice-btn {
+  position: absolute;
+  left: 16px; /* در سمت چپ ورودی */
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.voice-btn svg {
+  width: 24px;
+  height: 24px;
+  fill: var(--color-text-secondary);
+  transition: all 0.2s ease;
+}
+
+.voice-btn:hover svg, .voice-btn.listening svg {
+  fill: var(--color-accent);
+  transform: scale(1.1);
+}
+
+/* مخفی کردن دکمه جستجوی متنی */
+.search-btn {
+  display: none;
+}
+
+/* --- بخش نتایج --- */
+.results-section h2 {
+  font-size: 2rem;
+  font-weight: 300;
+  margin-bottom: 24px;
+  padding-right: 16px;
+  border-right: 3px solid var(--color-accent);
+}
+
+.movies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 30px;
+}
+
+/* --- کارت فیلم --- */
+.movie-card {
+  background-color: var(--color-surface);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.movie-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+.movie-poster {
+  width: 100%;
+  aspect-ratio: 2 / 3; /* حفظ نسبت تصویر پوستر */
+  position: relative;
+}
+
+.movie-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.movie-score {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background-color: rgba(16, 20, 31, 0.8);
+  backdrop-filter: blur(5px);
+  color: var(--color-text-primary);
+  padding: 4px 10px;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.movie-info {
+  padding: 16px;
+}
+
+.movie-info h3 {
+  font-size: 1.1rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.movie-info p {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  margin-top: 4px;
+}
+
+
+/* --- مودال --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+  background-color: var(--color-background);
+  border-radius: var(--border-radius-md);
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  animation: scaleUp 0.3s ease;
+  direction: rtl; /* تضمین راست‌چین بودن مودال */
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: 2rem;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.modal-header {
+  position: relative;
+  height: 400px;
+}
+
+.modal-backdrop {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.3;
+}
+
+.modal-header-overlay {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  padding: 32px;
+  background: linear-gradient(to top, var(--color-background), transparent);
+}
+
+.modal-header-overlay h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.modal-meta {
+  color: var(--color-text-secondary);
+  margin-top: 8px;
+}
+.modal-meta span {
+  margin-left: 12px;
+}
+
+.modal-body {
+  display: flex;
+  padding: 32px;
+  gap: 32px;
+}
+
+.modal-poster {
+  flex-shrink: 0;
+  width: 200px;
+}
+
+.modal-poster img {
+  width: 100%;
+  border-radius: var(--border-radius-md);
+}
+
+.modal-details p {
+  line-height: 1.8;
+}
+
+/* --- لودینگ و خطا --- */
+.loading-container, .error-message {
+  text-align: center;
+  padding: 80px 20px;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid var(--color-outline);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 16px;
+}
+
+.error-message {
+  color: var(--color-accent);
+  font-size: 1.2rem;
+}
+
+/* --- انیمیشن ها --- */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* --- ریسپانسیو --- */
+@media (max-width: 768px) {
+  .App {
+    padding: 16px;
+  }
+  .app-header h1 {
+    font-size: 2rem;
+  }
+  .search-input {
+    font-size: 1.2rem;
+  }
+  .modal-header {
+    height: 300px;
+  }
+  .modal-body {
+    flex-direction: column;
+  }
+  .modal-poster {
+    width: 150px;
+    margin: 0 auto;
+  }
+}
