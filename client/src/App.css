@@ -1,357 +1,509 @@
-/*!* --- متغیرهای اصلی طراحی --- *!*/
+/*!*!* --- متغیرهای اصلی طراحی --- *!*!*/
+/*!*:root {*!*/
+/*!*  --color-background: #10141f; !* آبی نفتی تیره *!*!*/
+/*!*  --color-surface: #161d2f;   !* سطح کارت ها و ورودی *!*!*/
+/*!*  --color-text-primary: #ffffff;*!*/
+/*!*  --color-text-secondary: #c3c4c7;*!*/
+/*!*  --color-accent: #fc4747;      !* قرمز گوجه ای برای تاکید *!*!*/
+/*!*  --color-outline: #5a698f;    !* رنگ بوردرها *!*!*/
+
+/*!*  --font-family: 'Vazirmatn', sans-serif;*!*/
+/*!*  --border-radius-sm: 8px;*!*/
+/*!*  --border-radius-md: 14px;*!*/
+/*!*}*!*/
+
+/*!*!* --- استایل های عمومی --- *!*!*/
+/*!** {*!*/
+/*!*  box-sizing: border-box;*!*/
+/*!*  margin: 0;*!*/
+/*!*  padding: 0;*!*/
+/*!*}*!*/
+
+/*!*body {*!*/
+/*!*  font-family: var(--font-family);*!*/
+/*!*  background-color: var(--color-background);*!*/
+/*!*  color: var(--color-text-primary);*!*/
+/*!*  line-height: 1.6;*!*/
+/*!*  direction: rtl;*!*/
+/*!*}*!*/
+
+/*!*.App {*!*/
+/*!*  width: 100%;*!*/
+/*!*  max-width: 1400px;*!*/
+/*!*  margin: 0 auto;*!*/
+/*!*  padding: 32px;*!*/
+/*!*}*!*/
+
+/*!*!* --- هدر --- *!*!*/
+/*!*.app-header {*!*/
+/*!*  text-align: center;*!*/
+/*!*  margin-bottom: 40px;*!*/
+/*!*}*!*/
+
+/*!*.app-header h1 {*!*/
+/*!*  font-size: 2.5rem;*!*/
+/*!*  font-weight: 700;*!*/
+/*!*  letter-spacing: -1px;*!*/
+/*!*}*!*/
+
+/*!*.app-header p {*!*/
+/*!*  color: var(--color-text-secondary);*!*/
+/*!*  font-size: 1rem;*!*/
+/*!*  margin-top: 8px;*!*/
+/*!*}*!*/
+
+/*!*!* --- فرم جستجو --- *!*!*/
+/*!*.search-form-container {*!*/
+/*!*  position: relative;*!*/
+/*!*  width: 100%;*!*/
+/*!*  display: flex;*!*/
+/*!*  align-items: center;*!*/
+/*!*  margin-bottom: 40px;*!*/
+/*!*}*!*/
+
+/*!*.search-icon {*!*/
+/*!*  position: absolute;*!*/
+/*!*  right: 20px;*!*/
+/*!*  top: 50%;*!*/
+/*!*  transform: translateY(-50%);*!*/
+/*!*  width: 24px;*!*/
+/*!*  height: 24px;*!*/
+/*!*  fill: var(--color-text-primary);*!*/
+/*!*}*!*/
+
+/*!*.search-input {*!*/
+/*!*  flex-grow: 1;*!*/
+/*!*  background-color: transparent;*!*/
+/*!*  border: none;*!*/
+/*!*  border-bottom: 2px solid var(--color-outline);*!*/
+/*!*  color: var(--color-text-primary);*!*/
+/*!*  font-family: var(--font-family);*!*/
+/*!*  font-size: 1.5rem;*!*/
+/*!*  padding: 16px 60px 16px 16px; !* فضای کافی برای آیکون ها *!*!*/
+/*!*  transition: border-bottom-color 0.3s ease;*!*/
+/*!*  outline: none;*!*/
+/*!*}*!*/
+
+/*!*.search-input::placeholder {*!*/
+/*!*  color: var(--color-text-secondary);*!*/
+/*!*  font-weight: 300;*!*/
+/*!*}*!*/
+
+/*!*.search-input:focus {*!*/
+/*!*  border-bottom-color: var(--color-accent);*!*/
+/*!*}*!*/
+
+/*!*.voice-btn {*!*/
+/*!*  position: absolute;*!*/
+/*!*  left: 16px; !* در سمت چپ ورودی *!*!*/
+/*!*  top: 50%;*!*/
+/*!*  transform: translateY(-50%);*!*/
+/*!*  background: none;*!*/
+/*!*  border: none;*!*/
+/*!*  cursor: pointer;*!*/
+/*!*  padding: 8px;*!*/
+/*!*  display: flex;*!*/
+/*!*  align-items: center;*!*/
+/*!*  justify-content: center;*!*/
+/*!*}*!*/
+
+/*!*.voice-btn svg {*!*/
+/*!*  width: 24px;*!*/
+/*!*  height: 24px;*!*/
+/*!*  fill: var(--color-text-secondary);*!*/
+/*!*  transition: all 0.2s ease;*!*/
+/*!*}*!*/
+
+/*!*.voice-btn:hover svg, .voice-btn.listening svg {*!*/
+/*!*  fill: var(--color-accent);*!*/
+/*!*  transform: scale(1.1);*!*/
+/*!*}*!*/
+
+/*!*!* مخفی کردن دکمه جستجوی متنی *!*!*/
+/*!*.search-btn {*!*/
+/*!*  display: none;*!*/
+/*!*}*!*/
+
+/*!*!* --- بخش نتایج --- *!*!*/
+/*!*.results-section h2 {*!*/
+/*!*  font-size: 2rem;*!*/
+/*!*  font-weight: 300;*!*/
+/*!*  margin-bottom: 24px;*!*/
+/*!*  padding-right: 16px;*!*/
+/*!*  border-right: 3px solid var(--color-accent);*!*/
+/*!*}*!*/
+
+/*!*.movies-grid {*!*/
+/*!*  display: grid;*!*/
+/*!*  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));*!*/
+/*!*  gap: 30px;*!*/
+/*!*}*!*/
+
+/*!*!* --- کارت فیلم --- *!*!*/
+/*!*.movie-card {*!*/
+/*!*  background-color: var(--color-surface);*!*/
+/*!*  border-radius: var(--border-radius-md);*!*/
+/*!*  overflow: hidden;*!*/
+/*!*  position: relative;*!*/
+/*!*  cursor: pointer;*!*/
+/*!*  transition: transform 0.3s ease, box-shadow 0.3s ease;*!*/
+/*!*  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);*!*/
+/*!*}*!*/
+
+/*!*.movie-card:hover {*!*/
+/*!*  transform: translateY(-8px);*!*/
+/*!*  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);*!*/
+/*!*}*!*/
+
+/*!*.movie-poster {*!*/
+/*!*  width: 100%;*!*/
+/*!*  aspect-ratio: 2 / 3; !* حفظ نسبت تصویر پوستر *!*!*/
+/*!*  position: relative;*!*/
+/*!*}*!*/
+
+/*!*.movie-poster img {*!*/
+/*!*  width: 100%;*!*/
+/*!*  height: 100%;*!*/
+/*!*  object-fit: cover;*!*/
+/*!*}*!*/
+
+/*!*.movie-score {*!*/
+/*!*  position: absolute;*!*/
+/*!*  top: 12px;*!*/
+/*!*  left: 12px;*!*/
+/*!*  background-color: rgba(16, 20, 31, 0.8);*!*/
+/*!*  backdrop-filter: blur(5px);*!*/
+/*!*  color: var(--color-text-primary);*!*/
+/*!*  padding: 4px 10px;*!*/
+/*!*  border-radius: var(--border-radius-sm);*!*/
+/*!*  font-size: 0.9rem;*!*/
+/*!*  font-weight: 700;*!*/
+/*!*}*!*/
+
+/*!*.movie-info {*!*/
+/*!*  padding: 16px;*!*/
+/*!*}*!*/
+
+/*!*.movie-info h3 {*!*/
+/*!*  font-size: 1.1rem;*!*/
+/*!*  font-weight: 500;*!*/
+/*!*  white-space: nowrap;*!*/
+/*!*  overflow: hidden;*!*/
+/*!*  text-overflow: ellipsis;*!*/
+/*!*}*!*/
+
+/*!*.movie-info p {*!*/
+/*!*  font-size: 0.9rem;*!*/
+/*!*  color: var(--color-text-secondary);*!*/
+/*!*  margin-top: 4px;*!*/
+/*!*}*!*/
+
+
+/*!*!* --- مودال --- *!*!*/
+/*!*.modal-overlay {*!*/
+/*!*  position: fixed;*!*/
+/*!*  top: 0;*!*/
+/*!*  left: 0;*!*/
+/*!*  width: 100%;*!*/
+/*!*  height: 100%;*!*/
+/*!*  background-color: rgba(0, 0, 0, 0.85);*!*/
+/*!*  backdrop-filter: blur(10px);*!*/
+/*!*  display: flex;*!*/
+/*!*  align-items: center;*!*/
+/*!*  justify-content: center;*!*/
+/*!*  z-index: 1000;*!*/
+/*!*  animation: fadeIn 0.3s ease;*!*/
+/*!*}*!*/
+
+/*!*.modal-content {*!*/
+/*!*  background-color: var(--color-background);*!*/
+/*!*  border-radius: var(--border-radius-md);*!*/
+/*!*  width: 90%;*!*/
+/*!*  max-width: 800px;*!*/
+/*!*  max-height: 90vh;*!*/
+/*!*  overflow-y: auto;*!*/
+/*!*  position: relative;*!*/
+/*!*  animation: scaleUp 0.3s ease;*!*/
+/*!*  direction: rtl; !* تضمین راست‌چین بودن مودال *!*!*/
+/*!*}*!*/
+
+/*!*.modal-close {*!*/
+/*!*  position: absolute;*!*/
+/*!*  top: 16px;*!*/
+/*!*  left: 16px;*!*/
+/*!*  background: none;*!*/
+/*!*  border: none;*!*/
+/*!*  color: var(--color-text-secondary);*!*/
+/*!*  font-size: 2rem;*!*/
+/*!*  cursor: pointer;*!*/
+/*!*  z-index: 10;*!*/
+/*!*}*!*/
+
+/*!*.modal-header {*!*/
+/*!*  position: relative;*!*/
+/*!*  height: 400px;*!*/
+/*!*}*!*/
+
+/*!*.modal-backdrop {*!*/
+/*!*  width: 100%;*!*/
+/*!*  height: 100%;*!*/
+/*!*  object-fit: cover;*!*/
+/*!*  opacity: 0.3;*!*/
+/*!*}*!*/
+
+/*!*.modal-header-overlay {*!*/
+/*!*  position: absolute;*!*/
+/*!*  bottom: 0;*!*/
+/*!*  right: 0;*!*/
+/*!*  width: 100%;*!*/
+/*!*  padding: 32px;*!*/
+/*!*  background: linear-gradient(to top, var(--color-background), transparent);*!*/
+/*!*}*!*/
+
+/*!*.modal-header-overlay h2 {*!*/
+/*!*  font-size: 2.5rem;*!*/
+/*!*  font-weight: 700;*!*/
+/*!*}*!*/
+
+/*!*.modal-meta {*!*/
+/*!*  color: var(--color-text-secondary);*!*/
+/*!*  margin-top: 8px;*!*/
+/*!*}*!*/
+/*!*.modal-meta span {*!*/
+/*!*  margin-left: 12px;*!*/
+/*!*}*!*/
+
+/*!*.modal-body {*!*/
+/*!*  display: flex;*!*/
+/*!*  padding: 32px;*!*/
+/*!*  gap: 32px;*!*/
+/*!*}*!*/
+
+/*!*.modal-poster {*!*/
+/*!*  flex-shrink: 0;*!*/
+/*!*  width: 200px;*!*/
+/*!*}*!*/
+
+/*!*.modal-poster img {*!*/
+/*!*  width: 100%;*!*/
+/*!*  border-radius: var(--border-radius-md);*!*/
+/*!*}*!*/
+
+/*!*.modal-details p {*!*/
+/*!*  line-height: 1.8;*!*/
+/*!*}*!*/
+
+/*!*!* --- لودینگ و خطا --- *!*!*/
+/*!*.loading-container, .error-message {*!*/
+/*!*  text-align: center;*!*/
+/*!*  padding: 80px 20px;*!*/
+/*!*}*!*/
+
+/*!*.spinner {*!*/
+/*!*  width: 50px;*!*/
+/*!*  height: 50px;*!*/
+/*!*  border: 5px solid var(--color-outline);*!*/
+/*!*  border-top-color: var(--color-accent);*!*/
+/*!*  border-radius: 50%;*!*/
+/*!*  animation: spin 1s linear infinite;*!*/
+/*!*  margin: 0 auto 16px;*!*/
+/*!*}*!*/
+
+/*!*.error-message {*!*/
+/*!*  color: var(--color-accent);*!*/
+/*!*  font-size: 1.2rem;*!*/
+/*!*}*!*/
+
+/*!*!* --- انیمیشن ها --- *!*!*/
+/*!*@keyframes fadeIn {*!*/
+/*!*  from { opacity: 0; }*!*/
+/*!*  to { opacity: 1; }*!*/
+/*!*}*!*/
+
+/*!*@keyframes scaleUp {*!*/
+/*!*  from { transform: scale(0.9); opacity: 0; }*!*/
+/*!*  to { transform: scale(1); opacity: 1; }*!*/
+/*!*}*!*/
+
+/*!*@keyframes spin {*!*/
+/*!*  to { transform: rotate(360deg); }*!*/
+/*!*}*!*/
+
+/*!*!* --- ریسپانسیو --- *!*!*/
+/*!*@media (max-width: 768px) {*!*/
+/*!*  .App {*!*/
+/*!*    padding: 16px;*!*/
+/*!*  }*!*/
+/*!*  .app-header h1 {*!*/
+/*!*    font-size: 2rem;*!*/
+/*!*  }*!*/
+/*!*  .search-input {*!*/
+/*!*    font-size: 1.2rem;*!*/
+/*!*  }*!*/
+/*!*  .modal-header {*!*/
+/*!*    height: 300px;*!*/
+/*!*  }*!*/
+/*!*  .modal-body {*!*/
+/*!*    flex-direction: column;*!*/
+/*!*  }*!*/
+/*!*  .modal-poster {*!*/
+/*!*    width: 150px;*!*/
+/*!*    margin: 0 auto;*!*/
+/*!*  }*!*/
+/*!*}*!*/
+
+
+
+/*!* General Styles *!*/
 /*:root {*/
-/*  --color-background: #10141f; !* آبی نفتی تیره *!*/
-/*  --color-surface: #161d2f;   !* سطح کارت ها و ورودی *!*/
-/*  --color-text-primary: #ffffff;*/
-/*  --color-text-secondary: #c3c4c7;*/
-/*  --color-accent: #fc4747;      !* قرمز گوجه ای برای تاکید *!*/
-/*  --color-outline: #5a698f;    !* رنگ بوردرها *!*/
-
-/*  --font-family: 'Vazirmatn', sans-serif;*/
-/*  --border-radius-sm: 8px;*/
-/*  --border-radius-md: 14px;*/
+/*  --primary-bg: #121212;*/
+/*  --secondary-bg: #1e1e1e;*/
+/*  --card-bg: #282828;*/
+/*  --text-primary: #ffffff;*/
+/*  --text-secondary: #b3b3b3;*/
+/*  --accent-color: #1db954;*/
+/*  --accent-hover: #1ed760;*/
 /*}*/
-
-/*!* --- استایل های عمومی --- *!*/
-/** {*/
-/*  box-sizing: border-box;*/
-/*  margin: 0;*/
-/*  padding: 0;*/
-/*}*/
-
 /*body {*/
-/*  font-family: var(--font-family);*/
-/*  background-color: var(--color-background);*/
-/*  color: var(--color-text-primary);*/
-/*  line-height: 1.6;*/
-/*  direction: rtl;*/
+/*  margin: 0;*/
+/*  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;*/
+/*  -webkit-font-smoothing: antialiased;*/
+/*  -moz-osx-font-smoothing: grayscale;*/
+/*  background-color: var(--primary-bg);*/
+/*  color: var(--text-primary);*/
 /*}*/
+/*.App { text-align: center; }*/
 
-/*.App {*/
-/*  width: 100%;*/
-/*  max-width: 1400px;*/
-/*  margin: 0 auto;*/
-/*  padding: 32px;*/
-/*}*/
-
-/*!* --- هدر --- *!*/
+/*!* Header *!*/
 /*.app-header {*/
-/*  text-align: center;*/
-/*  margin-bottom: 40px;*/
+/*  padding: 40px 20px;*/
+/*  background-color: var(--secondary-bg);*/
+/*  border-bottom: 1px solid #333;*/
 /*}*/
+/*.app-header h1 { margin: 0; font-size: 2.5rem; }*/
 
-/*.app-header h1 {*/
-/*  font-size: 2.5rem;*/
-/*  font-weight: 700;*/
-/*  letter-spacing: -1px;*/
-/*}*/
-
-/*.app-header p {*/
-/*  color: var(--color-text-secondary);*/
-/*  font-size: 1rem;*/
-/*  margin-top: 8px;*/
-/*}*/
-
-/*!* --- فرم جستجو --- *!*/
+/*!* Search Form *!*/
+/*main { padding: 20px; }*/
 /*.search-form-container {*/
-/*  position: relative;*/
-/*  width: 100%;*/
 /*  display: flex;*/
 /*  align-items: center;*/
-/*  margin-bottom: 40px;*/
-/*}*/
-
-/*.search-icon {*/
-/*  position: absolute;*/
-/*  right: 20px;*/
-/*  top: 50%;*/
-/*  transform: translateY(-50%);*/
-/*  width: 24px;*/
-/*  height: 24px;*/
-/*  fill: var(--color-text-primary);*/
-/*}*/
-
-/*.search-input {*/
-/*  flex-grow: 1;*/
-/*  background-color: transparent;*/
-/*  border: none;*/
-/*  border-bottom: 2px solid var(--color-outline);*/
-/*  color: var(--color-text-primary);*/
-/*  font-family: var(--font-family);*/
-/*  font-size: 1.5rem;*/
-/*  padding: 16px 60px 16px 16px; !* فضای کافی برای آیکون ها *!*/
-/*  transition: border-bottom-color 0.3s ease;*/
-/*  outline: none;*/
-/*}*/
-
-/*.search-input::placeholder {*/
-/*  color: var(--color-text-secondary);*/
-/*  font-weight: 300;*/
-/*}*/
-
-/*.search-input:focus {*/
-/*  border-bottom-color: var(--color-accent);*/
-/*}*/
-
-/*.voice-btn {*/
-/*  position: absolute;*/
-/*  left: 16px; !* در سمت چپ ورودی *!*/
-/*  top: 50%;*/
-/*  transform: translateY(-50%);*/
-/*  background: none;*/
-/*  border: none;*/
-/*  cursor: pointer;*/
-/*  padding: 8px;*/
-/*  display: flex;*/
-/*  align-items: center;*/
-/*  justify-content: center;*/
-/*}*/
-
-/*.voice-btn svg {*/
-/*  width: 24px;*/
-/*  height: 24px;*/
-/*  fill: var(--color-text-secondary);*/
-/*  transition: all 0.2s ease;*/
-/*}*/
-
-/*.voice-btn:hover svg, .voice-btn.listening svg {*/
-/*  fill: var(--color-accent);*/
-/*  transform: scale(1.1);*/
-/*}*/
-
-/*!* مخفی کردن دکمه جستجوی متنی *!*/
-/*.search-btn {*/
-/*  display: none;*/
-/*}*/
-
-/*!* --- بخش نتایج --- *!*/
-/*.results-section h2 {*/
-/*  font-size: 2rem;*/
-/*  font-weight: 300;*/
-/*  margin-bottom: 24px;*/
-/*  padding-right: 16px;*/
-/*  border-right: 3px solid var(--color-accent);*/
-/*}*/
-
-/*.movies-grid {*/
-/*  display: grid;*/
-/*  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));*/
-/*  gap: 30px;*/
-/*}*/
-
-/*!* --- کارت فیلم --- *!*/
-/*.movie-card {*/
-/*  background-color: var(--color-surface);*/
-/*  border-radius: var(--border-radius-md);*/
-/*  overflow: hidden;*/
-/*  position: relative;*/
-/*  cursor: pointer;*/
-/*  transition: transform 0.3s ease, box-shadow 0.3s ease;*/
+/*  max-width: 700px;*/
+/*  margin: 20px auto;*/
+/*  background-color: var(--secondary-bg);*/
+/*  border-radius: 50px;*/
+/*  padding: 5px;*/
 /*  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);*/
 /*}*/
+/*.search-icon { width: 24px; height: 24px; fill: var(--text-secondary); margin: 0 15px; }*/
+/*.search-input { flex-grow: 1; background: none; border: none; color: var(--text-primary); font-size: 1.1rem; outline: none; }*/
+/*.search-input::placeholder { color: var(--text-secondary); }*/
+/*.voice-btn { background: none; border: none; cursor: pointer; padding: 10px; display: flex; align-items: center; }*/
+/*.voice-btn svg { width: 24px; height: 24px; fill: var(--text-secondary); transition: fill 0.2s, transform 0.2s; }*/
+/*.voice-btn:hover svg { fill: var(--text-primary); }*/
+/*.voice-btn.listening svg { fill: #ef4444; transform: scale(1.1); }*/
+/*.search-btn { background-color: var(--accent-color); border: none; border-radius: 50px; color: var(--text-primary); font-weight: bold; padding: 12px 25px; cursor: pointer; transition: background-color 0.2s; }*/
+/*.search-btn:hover { background-color: var(--accent-hover); }*/
 
-/*.movie-card:hover {*/
-/*  transform: translateY(-8px);*/
-/*  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);*/
+/*!* Results Section *!*/
+/*.results-section { max-width: 1400px; margin: 40px auto; }*/
+/*.results-section h2 { text-align: right; margin-right: 20px; }*/
+/*.movies-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; padding: 0 20px; }*/
+
+/*!* Movie Card *!*/
+/*.movie-card { background-color: var(--card-bg); border-radius: 8px; overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; }*/
+/*.movie-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); }*/
+/*.movie-poster { width: 100%; padding-top: 150%; position: relative; }*/
+/*.movie-poster img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; background-color: #333; }*/
+/*.movie-info { padding: 15px; text-align: right; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }*/
+/*.movie-info h3 { margin: 0 0 10px 0; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }*/
+/*.genre-score-container { display: flex; justify-content: space-between; align-items: center; gap: 8px; }*/
+/*.movie-genres { font-size: 0.75rem; color: var(--text-secondary); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }*/
+/*.movie-score-badge { background-color: rgba(255, 255, 255, 0.1); color: var(--text-primary); font-size: 0.8rem; font-weight: bold; padding: 3px 8px; border-radius: 12px; flex-shrink: 0; }*/
+
+/*!* Loading and Error *!*/
+/*.loading-container, .error-message { margin-top: 50px; font-size: 1.2rem; color: var(--text-secondary); }*/
+/*.spinner { width: 50px; height: 50px; border: 5px solid rgba(255, 255, 255, 0.2); border-top-color: var(--text-primary); border-radius: 50%; animation: spinner 0.8s linear infinite; margin: 0 auto; }*/
+/*@keyframes spinner { to { transform: rotate(360deg); } }*/
+
+/*!* Modal Styles *!*/
+/*.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.85); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }*/
+/*.modal-content { background-color: var(--secondary-bg); border-radius: 12px; width: 100%; max-width: 900px; max-height: 90vh; overflow-y: auto; position: relative; animation: modal-fade-in 0.3s ease-out; }*/
+/*@keyframes modal-fade-in { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }*/
+/*.modal-close { position: absolute; top: 15px; left: 15px; background: rgba(0, 0, 0, 0.5); color: #fff; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 2; }*/
+/*.modal-spinner-container { height: 500px; display: flex; justify-content: center; align-items: center; }*/
+/*.modal-header { position: relative; height: 400px; }*/
+/*.modal-backdrop { width: 100%; height: 100%; object-fit: cover; border-top-left-radius: 12px; border-top-right-radius: 12px; }*/
+/*.modal-header-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 30px; background: linear-gradient(to top, rgba(30, 30, 30, 1) 20%, rgba(30, 30, 30, 0)); text-align: right; }*/
+/*.modal-header-overlay h2 { margin: 0; font-size: 2.5rem; }*/
+/*.modal-header-overlay .tagline { font-style: italic; color: #ccc; font-size: 1rem; margin-top: 8px; }*/
+/*.modal-meta { margin-top: 10px; font-size: 0.9rem; color: var(--text-secondary); }*/
+/*.modal-meta span { margin-left: 10px; }*/
+/*.modal-body { display: flex; padding: 30px; gap: 30px; text-align: right; }*/
+/*.modal-poster { flex-shrink: 0; }*/
+/*.modal-poster img { width: 200px; border-radius: 8px; }*/
+/*.modal-details h3 { margin-top: 0; }*/
+
+/*!* --- استایل‌های جدید و اصلاح شده برای لیست بازیگران --- *!*/
+/*.credits-section { margin-top: 24px; }*/
+/*.credits-section h4 { margin-bottom: 12px; border-bottom: 1px solid #444; padding-bottom: 8px; }*/
+/*.director-name {*/
+/*  font-size: 1rem;*/
+/*  color: var(--text-secondary);*/
 /*}*/
 
-/*.movie-poster {*/
-/*  width: 100%;*/
-/*  aspect-ratio: 2 / 3; !* حفظ نسبت تصویر پوستر *!*/
-/*  position: relative;*/
+/*.cast-grid {*/
+/*  display: grid;*/
+/*  grid-template-columns: 1fr; !* یک ستون برای نمایش عمودی *!*/
+/*  gap: 15px;*/
 /*}*/
 
-/*.movie-poster img {*/
-/*  width: 100%;*/
-/*  height: 100%;*/
-/*  object-fit: cover;*/
-/*}*/
-
-/*.movie-score {*/
-/*  position: absolute;*/
-/*  top: 12px;*/
-/*  left: 12px;*/
-/*  background-color: rgba(16, 20, 31, 0.8);*/
-/*  backdrop-filter: blur(5px);*/
-/*  color: var(--color-text-primary);*/
-/*  padding: 4px 10px;*/
-/*  border-radius: var(--border-radius-sm);*/
-/*  font-size: 0.9rem;*/
-/*  font-weight: 700;*/
-/*}*/
-
-/*.movie-info {*/
-/*  padding: 16px;*/
-/*}*/
-
-/*.movie-info h3 {*/
-/*  font-size: 1.1rem;*/
-/*  font-weight: 500;*/
-/*  white-space: nowrap;*/
-/*  overflow: hidden;*/
-/*  text-overflow: ellipsis;*/
-/*}*/
-
-/*.movie-info p {*/
-/*  font-size: 0.9rem;*/
-/*  color: var(--color-text-secondary);*/
-/*  margin-top: 4px;*/
-/*}*/
-
-
-/*!* --- مودال --- *!*/
-/*.modal-overlay {*/
-/*  position: fixed;*/
-/*  top: 0;*/
-/*  left: 0;*/
-/*  width: 100%;*/
-/*  height: 100%;*/
-/*  background-color: rgba(0, 0, 0, 0.85);*/
-/*  backdrop-filter: blur(10px);*/
+/*.cast-member {*/
 /*  display: flex;*/
 /*  align-items: center;*/
-/*  justify-content: center;*/
-/*  z-index: 1000;*/
-/*  animation: fadeIn 0.3s ease;*/
-/*}*/
-
-/*.modal-content {*/
-/*  background-color: var(--color-background);*/
-/*  border-radius: var(--border-radius-md);*/
-/*  width: 90%;*/
-/*  max-width: 800px;*/
-/*  max-height: 90vh;*/
-/*  overflow-y: auto;*/
-/*  position: relative;*/
-/*  animation: scaleUp 0.3s ease;*/
-/*  direction: rtl; !* تضمین راست‌چین بودن مودال *!*/
-/*}*/
-
-/*.modal-close {*/
-/*  position: absolute;*/
-/*  top: 16px;*/
-/*  left: 16px;*/
-/*  background: none;*/
-/*  border: none;*/
-/*  color: var(--color-text-secondary);*/
-/*  font-size: 2rem;*/
+/*  background-color: rgba(255, 255, 255, 0.05);*/
+/*  border-radius: 8px;*/
+/*  padding: 8px;*/
 /*  cursor: pointer;*/
-/*  z-index: 10;*/
+/*  transition: background-color 0.2s;*/
+/*}*/
+/*.cast-member:hover {*/
+/*  background-color: rgba(255, 255, 255, 0.1);*/
 /*}*/
 
-/*.modal-header {*/
-/*  position: relative;*/
-/*  height: 400px;*/
-/*}*/
-
-/*.modal-backdrop {*/
-/*  width: 100%;*/
-/*  height: 100%;*/
-/*  object-fit: cover;*/
-/*  opacity: 0.3;*/
-/*}*/
-
-/*.modal-header-overlay {*/
-/*  position: absolute;*/
-/*  bottom: 0;*/
-/*  right: 0;*/
-/*  width: 100%;*/
-/*  padding: 32px;*/
-/*  background: linear-gradient(to top, var(--color-background), transparent);*/
-/*}*/
-
-/*.modal-header-overlay h2 {*/
-/*  font-size: 2.5rem;*/
-/*  font-weight: 700;*/
-/*}*/
-
-/*.modal-meta {*/
-/*  color: var(--color-text-secondary);*/
-/*  margin-top: 8px;*/
-/*}*/
-/*.modal-meta span {*/
-/*  margin-left: 12px;*/
-/*}*/
-
-/*.modal-body {*/
-/*  display: flex;*/
-/*  padding: 32px;*/
-/*  gap: 32px;*/
-/*}*/
-
-/*.modal-poster {*/
-/*  flex-shrink: 0;*/
-/*  width: 200px;*/
-/*}*/
-
-/*.modal-poster img {*/
-/*  width: 100%;*/
-/*  border-radius: var(--border-radius-md);*/
-/*}*/
-
-/*.modal-details p {*/
-/*  line-height: 1.8;*/
-/*}*/
-
-/*!* --- لودینگ و خطا --- *!*/
-/*.loading-container, .error-message {*/
-/*  text-align: center;*/
-/*  padding: 80px 20px;*/
-/*}*/
-
-/*.spinner {*/
+/*.cast-member img {*/
 /*  width: 50px;*/
 /*  height: 50px;*/
-/*  border: 5px solid var(--color-outline);*/
-/*  border-top-color: var(--color-accent);*/
 /*  border-radius: 50%;*/
-/*  animation: spin 1s linear infinite;*/
-/*  margin: 0 auto 16px;*/
+/*  object-fit: cover;*/
+/*  margin-left: 15px;*/
+/*  background-color: #333;*/
 /*}*/
 
-/*.error-message {*/
-/*  color: var(--color-accent);*/
-/*  font-size: 1.2rem;*/
+/*.cast-info {*/
+/*  display: flex;*/
+/*  flex-direction: column;*/
+/*  text-align: right;*/
 /*}*/
 
-/*!* --- انیمیشن ها --- *!*/
-/*@keyframes fadeIn {*/
-/*  from { opacity: 0; }*/
-/*  to { opacity: 1; }*/
+/*.actor-name {*/
+/*  font-weight: bold;*/
+/*  font-size: 0.9rem;*/
+/*  color: var(--text-primary);*/
 /*}*/
 
-/*@keyframes scaleUp {*/
-/*  from { transform: scale(0.9); opacity: 0; }*/
-/*  to { transform: scale(1); opacity: 1; }*/
+/*.character-name {*/
+/*  font-size: 0.8rem;*/
+/*  color: var(--text-secondary);*/
+/*  margin-top: 2px;*/
 /*}*/
 
-/*@keyframes spin {*/
-/*  to { transform: rotate(360deg); }*/
-/*}*/
-
-/*!* --- ریسپانسیو --- *!*/
+/*!* Responsive Design *!*/
 /*@media (max-width: 768px) {*/
-/*  .App {*/
-/*    padding: 16px;*/
-/*  }*/
-/*  .app-header h1 {*/
-/*    font-size: 2rem;*/
-/*  }*/
-/*  .search-input {*/
-/*    font-size: 1.2rem;*/
-/*  }*/
-/*  .modal-header {*/
-/*    height: 300px;*/
-/*  }*/
-/*  .modal-body {*/
-/*    flex-direction: column;*/
-/*  }*/
-/*  .modal-poster {*/
-/*    width: 150px;*/
-/*    margin: 0 auto;*/
-/*  }*/
+/*  .modal-body { flex-direction: column; align-items: center; text-align: center; }*/
+/*  .modal-header h2 { font-size: 1.8rem; }*/
+/*  .movies-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }*/
+/*  .cast-info { text-align: right; !* برای حفظ راست‌چین در موبایل *! }*/
 /*}*/
-
 
 
 /* General Styles */
@@ -374,26 +526,68 @@ body {
 }
 .App { text-align: center; }
 
-/* Header */
+/* Header & Auth Section */
 .app-header {
-  padding: 40px 20px;
+  position: relative;
+  padding: 40px 20px 20px 20px;
   background-color: var(--secondary-bg);
   border-bottom: 1px solid #333;
 }
-.app-header h1 { margin: 0; font-size: 2.5rem; }
+.app-header h1 { margin: 0; font-size: 2.5rem; cursor: pointer; display: inline-block; }
+.auth-section {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+}
+.login-btn {
+  background-color: #fff;
+  color: #121212;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 50px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.login-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+.user-profile {
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse;
+  background: rgba(30, 30, 30, 0.7);
+  padding: 5px;
+  border-radius: 50px;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.user-profile img {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+}
+.user-profile span {
+  font-size: 0.9rem;
+  color: #f0f0f0;
+  margin: 0 12px;
+}
+.search-credit {
+  background-color: var(--accent-color);
+  color: #fff;
+  font-size: 0.8rem;
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-weight: bold;
+  white-space: nowrap;
+}
 
 /* Search Form */
 main { padding: 20px; }
-.search-form-container {
-  display: flex;
-  align-items: center;
-  max-width: 700px;
-  margin: 20px auto;
-  background-color: var(--secondary-bg);
-  border-radius: 50px;
-  padding: 5px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
+.search-form-container { display: flex; align-items: center; max-width: 700px; margin: 20px auto; background-color: var(--secondary-bg); border-radius: 50px; padding: 5px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
 .search-icon { width: 24px; height: 24px; fill: var(--text-secondary); margin: 0 15px; }
 .search-input { flex-grow: 1; background: none; border: none; color: var(--text-primary); font-size: 1.1rem; outline: none; }
 .search-input::placeholder { color: var(--text-secondary); }
@@ -403,6 +597,7 @@ main { padding: 20px; }
 .voice-btn.listening svg { fill: #ef4444; transform: scale(1.1); }
 .search-btn { background-color: var(--accent-color); border: none; border-radius: 50px; color: var(--text-primary); font-weight: bold; padding: 12px 25px; cursor: pointer; transition: background-color 0.2s; }
 .search-btn:hover { background-color: var(--accent-hover); }
+.search-btn:disabled { background-color: #555; cursor: not-allowed; }
 
 /* Results Section */
 .results-section { max-width: 1400px; margin: 40px auto; }
@@ -429,7 +624,7 @@ main { padding: 20px; }
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.85); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
 .modal-content { background-color: var(--secondary-bg); border-radius: 12px; width: 100%; max-width: 900px; max-height: 90vh; overflow-y: auto; position: relative; animation: modal-fade-in 0.3s ease-out; }
 @keyframes modal-fade-in { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-.modal-close { position: absolute; top: 15px; left: 15px; background: rgba(0, 0, 0, 0.5); color: #fff; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 2; }
+.modal-close { position: absolute; top: 15px; left: 15px; background: rgba(0, 0, 0, 0.5); color: #fff; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 1001; }
 .modal-spinner-container { height: 500px; display: flex; justify-content: center; align-items: center; }
 .modal-header { position: relative; height: 400px; }
 .modal-backdrop { width: 100%; height: 100%; object-fit: cover; border-top-left-radius: 12px; border-top-right-radius: 12px; }
@@ -442,65 +637,46 @@ main { padding: 20px; }
 .modal-poster { flex-shrink: 0; }
 .modal-poster img { width: 200px; border-radius: 8px; }
 .modal-details h3 { margin-top: 0; }
-
-/* --- استایل‌های جدید و اصلاح شده برای لیست بازیگران --- */
 .credits-section { margin-top: 24px; }
 .credits-section h4 { margin-bottom: 12px; border-bottom: 1px solid #444; padding-bottom: 8px; }
-.director-name {
-  font-size: 1rem;
-  color: var(--text-secondary);
-}
+.director-name { font-size: 1rem; color: var(--text-secondary); }
+.cast-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+.cast-member { display: flex; align-items: center; background-color: rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 8px; cursor: pointer; transition: background-color 0.2s; }
+.cast-member:hover { background-color: rgba(255, 255, 255, 0.1); }
+.cast-member img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-left: 15px; background-color: #333; }
+.cast-info { display: flex; flex-direction: column; text-align: right; }
+.actor-name { font-weight: bold; font-size: 0.9rem; color: var(--text-primary); }
+.character-name { font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px; }
 
-.cast-grid {
-  display: grid;
-  grid-template-columns: 1fr; /* یک ستون برای نمایش عمودی */
-  gap: 15px;
-}
+/* --- Subscription & Login Prompt Modal Styles --- */
+.subscription-modal { padding: 30px 40px; text-align: center; max-width: 500px; }
+.subscription-modal h2 { margin-top: 0; }
+.subscription-modal p { color: var(--text-secondary); line-height: 1.6; margin-bottom: 30px; }
+.google-login-btn { display: inline-flex; align-items: center; justify-content: center; gap: 15px; background-color: #fff; color: #333; border: none; padding: 12px 24px; border-radius: 50px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+.google-login-btn:hover { transform: scale(1.05); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 
-.cast-member {
-  display: flex;
-  align-items: center;
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  padding: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-.cast-member:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.cast-member img {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-left: 15px;
-  background-color: #333;
-}
-
-.cast-info {
-  display: flex;
-  flex-direction: column;
-  text-align: right;
-}
-
-.actor-name {
-  font-weight: bold;
-  font-size: 0.9rem;
-  color: var(--text-primary);
-}
-
-.character-name {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  margin-top: 2px;
-}
+.upgrade-modal { padding: 30px 40px; text-align: center; max-width: 700px; background-color: #181818; }
+.subscription-tiers { display: flex; gap: 20px; margin-top: 30px; }
+.tier { flex: 1; background-color: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid #444; transition: transform 0.2s, border-color 0.2s; position: relative; }
+.tier:hover { transform: translateY(-5px); border-color: var(--accent-color); }
+.tier.popular { border-color: var(--accent-hover); border-width: 2px; }
+.popular-badge { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: var(--accent-hover); color: #fff; padding: 5px 15px; border-radius: 50px; font-size: 0.8rem; font-weight: bold; }
+.tier-icon { font-size: 2.5rem; margin-bottom: 10px; }
+.tier h3 { margin: 10px 0; }
+.tier-price { font-size: 1.8rem; font-weight: bold; margin: 10px 0 20px 0; }
+.tier-price span { font-size: 1rem; font-weight: normal; color: var(--text-secondary); }
+.tier-features { list-style: none; padding: 0; margin: 0; text-align: right; font-size: 0.9rem; line-height: 2; color: var(--text-secondary); }
+.tier-features li { margin-bottom: 5px; }
+.tier-features strong { color: var(--text-primary); }
+.purchase-btn { width: 100%; margin-top: 25px; background-color: var(--accent-hover); color: #fff; border: none; padding: 15px 30px; font-size: 1.1rem; font-weight: bold; border-radius: 50px; cursor: pointer; transition: transform 0.2s; }
+.purchase-btn:hover { transform: scale(1.05); }
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .modal-body { flex-direction: column; align-items: center; text-align: center; }
   .modal-header h2 { font-size: 1.8rem; }
   .movies-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
-  .cast-info { text-align: right; /* برای حفظ راست‌چین در موبایل */ }
+  .auth-section { top: 10px; right: 10px; }
+  .user-profile span { display: none; }
+  .subscription-tiers { flex-direction: column; }
 }
