@@ -252,32 +252,23 @@
 //
 // export default App;
 
-// file: src/App.js
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import './App.css';
 
-// --- Axios Instance with Auth Interceptor ---
 const api = axios.create({ baseURL: process.env.REACT_APP_SERVER_URL || 'http://localhost:4000' });
 api.interceptors.request.use(config => {
     const token = localStorage.getItem('jwtToken');
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
+    if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
 });
 
-// --- Voice Recognition Hook ---
 const useVoiceRecognition = ({ onResult }) => {
     const [isListening, setIsListening] = useState(false);
     const recognitionRef = useRef(null);
     useEffect(() => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            console.warn('Speech Recognition not supported in this browser.');
-            return;
-        }
+        if (!SpeechRecognition) return;
         const recognition = new SpeechRecognition();
         recognition.continuous = false;
         recognition.lang = 'fa-IR';
@@ -289,39 +280,27 @@ const useVoiceRecognition = ({ onResult }) => {
             if (onResult) onResult(transcript);
         };
         recognition.onerror = (event) => {
-            console.error('Speech recognition error:', event.error);
-            if (event.error === 'not-allowed') alert('دسترسی به میکروفون داده نشد. لطفاً در تنظیمات مرورگر خود دسترسی را فعال کنید.');
+            if (event.error === 'not-allowed') alert('دسترسی به میکروفون داده نشد.');
             setIsListening(false);
         };
         recognitionRef.current = recognition;
     }, [onResult]);
-
     const startListening = () => {
-        if (recognitionRef.current && !isListening) {
-            try {
-                recognitionRef.current.start();
-            } catch (error) {
-                console.error("Could not start voice recognition:", error);
-                alert("امکان فعال‌سازی جستجوی صوتی وجود ندارد.");
-            }
-        }
+        if (recognitionRef.current && !isListening) try { recognitionRef.current.start(); } catch { alert("امکان فعال‌سازی جستجوی صوتی وجود ندارد."); }
     };
     return { isListening, startListening };
 };
 
-// --- Main App Component ---
 function App() {
     const [user, setUser] = useState(null);
     const [authLoading, setAuthLoading] = useState(true);
     const [showLoginPromptModal, setShowLoginPromptModal] = useState(false);
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-
     const [searchQuery, setSearchQuery] = useState('');
     const [movies, setMovies] = useState([]);
     const [resultsTitle, setResultsTitle] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-
     const [selectedMovie, setSelectedMovie] = useState(null);
     const [detailedMovie, setDetailedMovie] = useState(null);
     const [isModalLoading, setIsModalLoading] = useState(false);
@@ -329,19 +308,12 @@ function App() {
 
     const fetchCurrentUser = useCallback(async () => {
         const token = localStorage.getItem('jwtToken');
-        if (!token) {
-            setAuthLoading(false);
-            return;
-        }
+        if (!token) { setAuthLoading(false); return; }
         try {
             const { data } = await api.get('/api/current_user');
             setUser(data);
-        } catch (err) {
-            localStorage.removeItem('jwtToken');
-            setUser(null);
-        } finally {
-            setAuthLoading(false);
-        }
+        } catch (err) { localStorage.removeItem('jwtToken'); setUser(null); }
+        finally { setAuthLoading(false); }
     }, []);
 
     useEffect(() => {
@@ -358,30 +330,17 @@ function App() {
         if (!queryToSearch.trim()) return;
         if (!user) return setShowLoginPromptModal(true);
         if (user && !user.isPro && user.searchesLeft <= 0) return setShowUpgradeModal(true);
-
-        setLoading(true);
-        setError(null);
-        setSearchQuery(queryToSearch);
-        setMovies([]);
-
+        setLoading(true); setError(null); setSearchQuery(queryToSearch); setMovies([]);
         try {
             const response = await api.post('/api/search', { query: queryToSearch });
             setMovies(response.data.results || []);
             setResultsTitle(response.data.title || '');
-            if (response.data.userData) {
-                setUser(prevUser => ({ ...prevUser, ...response.data.userData }));
-            }
+            if (response.data.userData) setUser(prev => ({ ...prev, ...response.data.userData }));
         } catch (err) {
-            if (err.response && err.response.status === 402) {
-                setShowUpgradeModal(true);
-                setError('اعتبار جستجوی شما تمام شده است.');
-            } else {
-                setError(err.response?.data?.error || 'خطا در جستجو.');
-            }
+            if (err.response?.status === 402) setShowUpgradeModal(true);
+            setError(err.response?.data?.error || 'خطا در جستجو.');
             setMovies([]);
-        } finally {
-            setLoading(false);
-        }
+        } finally { setLoading(false); }
     };
 
     const handleActorClick = (actorName) => {
@@ -392,27 +351,19 @@ function App() {
     const handleMovieClick = async (movie) => {
         if (!user) return setShowLoginPromptModal(true);
         if (user && !user.isPro && user.searchesLeft <= 0) return setShowUpgradeModal(true);
-
-        setSelectedMovie(movie);
-        setDetailedMovie(null);
-        setIsModalLoading(true);
+        setSelectedMovie(movie); setDetailedMovie(null); setIsModalLoading(true);
         try {
             const type = movie.media_type === 'tv' || movie.first_air_date ? 'tv' : 'movie';
             const response = await api.get(`/api/details/${type}/${movie.id}`);
             setDetailedMovie(response.data);
+            if (response.data.userData) setUser(prev => ({ ...prev, ...response.data.userData }));
         } catch (error) {
-            if (error.response?.status === 401 || error.response?.status === 402) {
-                closeModal();
-                setError('برای مشاهده جزئیات، لطفاً وارد شوید یا اشتراک خود را بررسی کنید.');
-            }
-        } finally {
-            setIsModalLoading(false);
-        }
+            closeModal();
+            setError('خطا در دریافت جزئیات.');
+        } finally { setIsModalLoading(false); }
     };
 
-    const { isListening, startListening } = useVoiceRecognition({
-        onResult: (transcript) => handleSearch(transcript)
-    });
+    const { isListening, startListening } = useVoiceRecognition({ onResult: handleSearch });
 
     const fetchTrending = useCallback(async () => {
         setLoading(true);
@@ -420,29 +371,20 @@ function App() {
             const response = await axios.get(`${process.env.REACT_APP_SERVER_URL || 'http://localhost:4000'}/api/trending`);
             const trending = response.data.results || [];
             setTrendingMovies(trending);
-            setMovies(trending);
-            setResultsTitle('محبوب‌ترین‌های امروز');
-        } catch (err) {
-            setError('خطا در دریافت لیست محبوب‌ترین‌ها.');
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+            if (searchQuery === '') { setMovies(trending); setResultsTitle('محبوب‌ترین‌های امروز'); }
+        } catch (err) { setError('خطا در دریافت لیست محبوب‌ترین‌ها.'); }
+        finally { setLoading(false); }
+    }, [searchQuery]);
     useEffect(() => { fetchTrending(); }, [fetchTrending]);
 
     const handleLogoClick = () => {
-        setSearchQuery('');
-        setError(null);
-        setMovies(trendingMovies);
-        setResultsTitle('محبوب‌ترین‌های امروز');
+        setSearchQuery(''); setError(null); setMovies(trendingMovies); setResultsTitle('محبوب‌ترین‌های امروز');
     };
 
     const handleLogin = () => { window.location.href = `${process.env.REACT_APP_SERVER_URL || 'http://localhost:4000'}/auth/google`; };
     const closeModal = () => { setSelectedMovie(null); setDetailedMovie(null); };
 
-    if (authLoading) {
-        return <div className="loading-container"><div className="spinner"></div></div>;
-    }
+    if (authLoading) return <div className="loading-container"><div className="spinner"></div></div>;
 
     return (
         <div className="App">
@@ -454,14 +396,12 @@ function App() {
                             <span>{user.displayName}</span>
                             <img src={user.photo} alt={user.displayName} />
                         </div>
-                    ) : (
-                        <button onClick={handleLogin} className="login-btn">ورود با گوگل</button>
-                    )}
+                    ) : ( <button onClick={handleLogin} className="login-btn">ورود با گوگل</button> )}
                 </div>
-                <h1 onClick={handleLogoClick} style={{ cursor: 'pointer' }}>Like That</h1>
+                {/*<h1 >Like That</h1>*/}
+                <img onClick={handleLogoClick} style={{ cursor: 'pointer' }} src="/assets/images/image.png" height={150} width={150} alt="Example" />
                 <p style={{fontSize:"20px",textTransform:"capitalize"}}>The First and The most Powerful Intelligent Movies/Series/Anime Search engine</p>
             </header>
-
             <main>
                 <form onSubmit={(e) => { e.preventDefault(); handleSearch(searchQuery); }}>
                     <div className="search-form-container">
@@ -470,68 +410,47 @@ function App() {
                         <button type="button" className={`voice-btn ${isListening ? 'listening' : ''}`} onClick={startListening} title="جستجوی صوتی">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" /><path d="M17 11h-1c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92z" /></svg>
                         </button>
-                        <button type="submit" className="search-btn" disabled={loading || showUpgradeModal}>
-                            {loading ? '...' : 'جستجو'}
-                        </button>
+                        <button type="submit" className="search-btn" disabled={loading || showUpgradeModal}> {loading ? '...' : 'جستجو'} </button>
                     </div>
                 </form>
-
                 {loading && <div className="loading-container"><div className="spinner"></div></div>}
                 {error && <div className="error-message">{error}</div>}
-
                 {!loading && !error && movies.length > 0 && (
                     <section className="results-section">
                         <h2>{resultsTitle}</h2>
                         <div className="movies-grid">
-                            {movies.map((movie) => (
-                                <MovieCard key={`${movie.id}-${movie.credit_id || ''}`} movie={movie} onMovieClick={handleMovieClick} />
-                            ))}
+                            {movies.map((movie) => (<MovieCard key={`${movie.id}-${movie.credit_id || ''}`} movie={movie} onMovieClick={handleMovieClick} />))}
                         </div>
                     </section>
                 )}
-                {!loading && !error && movies.length === 0 && resultsTitle && !resultsTitle.includes("محبوب") && (
-                    <div className="error-message">نتیجه‌ای یافت نشد. لطفاً عبارت دیگری را امتحان کنید.</div>
-                )}
+                {!loading && !error && movies.length === 0 && resultsTitle && !resultsTitle.includes("محبوب") && (<div className="error-message">نتیجه‌ای یافت نشد.</div>)}
             </main>
-
-            <MovieModal
-                movie={selectedMovie}
-                details={detailedMovie}
-                isLoading={isModalLoading}
-                onClose={closeModal}
-                onActorClick={handleActorClick}
-            />
-
+            <MovieModal movie={selectedMovie} details={detailedMovie} isLoading={isModalLoading} onClose={closeModal} onActorClick={handleActorClick} />
             {showLoginPromptModal && <LoginPromptModal onClose={() => setShowLoginPromptModal(false)} onLogin={handleLogin} />}
             {showUpgradeModal && <UpgradeModal onClose={() => setShowUpgradeModal(false)} />}
         </div>
     );
 }
 
-// --- Reusable Components (Defined outside the main App component) ---
-
 const MovieCard = ({ movie, onMovieClick }) => (
     <div className="movie-card" onClick={() => onMovieClick(movie)}>
-        <div className="movie-poster">
-            <img src={movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : 'placeholder.svg'} alt={movie.title || movie.name} loading="lazy" />
-        </div>
+        <div className="movie-poster"><img src={movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : 'placeholder.svg'} alt={movie.title || movie.name} loading="lazy" /></div>
         <div className="movie-info">
             <h3>{movie.title || movie.name}</h3>
             <div className="genre-score-container">
-                {movie.genres && movie.genres.length > 0 && <span className="movie-genres">{movie.genres.slice(0, 2).join(' • ')}</span>}
+                {movie.genres?.length > 0 && <span className="movie-genres">{movie.genres.slice(0, 2).join(' • ')}</span>}
                 {movie.vote_average > 0 && <span className="movie-score-badge">{movie.vote_average.toFixed(1)}</span>}
             </div>
         </div>
     </div>
 );
-
 const MovieModal = ({ movie, details, isLoading, onClose, onActorClick }) => {
     if (!movie) return null;
     const finalData = details || movie;
     const releaseDate = finalData.release_date || finalData.first_air_date;
     return (
         <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-content" onClick={e => e.stopPropagation()}>
                 <button className="modal-close" onClick={onClose}>×</button>
                 {isLoading && <div className="modal-spinner-container"><div className="spinner"></div></div>}
                 {!isLoading && finalData && (
@@ -553,13 +472,8 @@ const MovieModal = ({ movie, details, isLoading, onClose, onActorClick }) => {
                             <div className="modal-details">
                                 <h3>درباره فیلم</h3>
                                 <p>{finalData.overview || 'توضیحاتی در دسترس نیست.'}</p>
-                                {details?.director && (
-                                    <div className="credits-section">
-                                        <h4>کارگردان</h4>
-                                        <p className="director-name">{details.director.name}</p>
-                                    </div>
-                                )}
-                                {details?.cast && details.cast.length > 0 && (
+                                {details?.director && (<div className="credits-section"><h4>کارگردان</h4><p className="director-name">{details.director.name}</p></div>)}
+                                {details?.cast?.length > 0 && (
                                     <div className="credits-section">
                                         <h4>بازیگران اصلی</h4>
                                         <div className="cast-grid">
@@ -583,10 +497,9 @@ const MovieModal = ({ movie, details, isLoading, onClose, onActorClick }) => {
         </div>
     );
 };
-
 const LoginPromptModal = ({ onClose, onLogin }) => (
     <div className="modal-overlay" onClick={onClose}>
-        <div className="modal-content subscription-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-content subscription-modal" onClick={e => e.stopPropagation()}>
             <button className="modal-close" onClick={onClose}>×</button>
             <h2>لطفاً وارد شوید</h2>
             <p>برای استفاده از جستجوی هوشمند، ابتدا باید وارد حساب کاربری خود شوید.</p>
@@ -597,35 +510,27 @@ const LoginPromptModal = ({ onClose, onLogin }) => (
         </div>
     </div>
 );
-
 const UpgradeModal = ({ onClose }) => (
     <div className="modal-overlay" onClick={onClose}>
-        <div className="modal-content upgrade-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-content upgrade-modal" onClick={e => e.stopPropagation()}>
             <button className="modal-close" onClick={onClose}>×</button>
             <h2>اعتبار شما به پایان رسید!</h2>
             <p>برای ادامه، یکی از پلن‌های ویژه ما را انتخاب کنید.</p>
             <div className="subscription-tiers">
                 <div className="tier">
-                    <div className="tier-icon">🎟️</div>
-                    <h3>Cinephile</h3>
+                    <div className="tier-icon">🎟️</div><h3>Cinephile</h3>
                     <div className="tier-price">$4.99 <span>/ ماه</span></div>
                     <ul className="tier-features">
-                        <li>✓ جستجوی نامحدود</li>
-                        <li>✓ دسترسی به تمام جزئیات</li>
-                        <li>✓ ذخیره در علاقه‌مندی‌ها</li>
+                        <li>✓ جستجوی نامحدود</li><li>✓ دسترسی به تمام جزئیات</li><li>✓ ذخیره در علاقه‌مندی‌ها</li>
                     </ul>
                     <button className="purchase-btn">انتخاب پلن</button>
                 </div>
                 <div className="tier popular">
                     <span className="popular-badge">پیشنهاد ویژه</span>
-                    <div className="tier-icon">🎬</div>
-                    <h3>Director's Cut</h3>
+                    <div className="tier-icon">🎬</div><h3>Director's Cut</h3>
                     <div className="tier-price">$9.99 <span>/ ماه</span></div>
                     <ul className="tier-features">
-                        <li>✓ تمام ویژگی‌های Cinephile</li>
-                        <li>✓ **جستجو با هوش مصنوعی پیشرفته**</li>
-                        <li>✓ پیشنهادات شخصی‌سازی شده</li>
-                        <li>✓ دسترسی زودهنگام به قابلیت‌ها</li>
+                        <li>✓ تمام ویژگی‌های Cinephile</li><li>✓ **جستجو با هوش مصنوعی پیشرفته**</li><li>✓ پیشنهادات شخصی‌سازی شده</li><li>✓ دسترسی زودهنگام به قابلیت‌ها</li>
                     </ul>
                     <button className="purchase-btn">انتخاب پلن</button>
                 </div>

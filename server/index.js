@@ -287,8 +287,6 @@
 // --- 1. IMPORTS & INITIALIZATION ---
 // ---------------------------------
 
-
-
 // file: server/index.js
 
 // ---------------------------------
@@ -337,6 +335,7 @@ app.use(passport.session());
 
 mongoose.connect(MONGO_URI).then(() => console.log('✅ MongoDB connected.')).catch(err => console.error('❌ MongoDB connection error:', err));
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+
 
 // ---------------------------------
 // --- 3. HELPER FUNCTIONS & DATA ---
@@ -439,88 +438,106 @@ const requireLoginAndCheckSearches = async (req, res, next) => {
 };
 
 app.post("/api/search", requireLoginAndCheckSearches, async (req, res) => {
-    const { query } = req.body;
-    const lang = query.match(/[a-zA-Z]/) ? 'en-US' : 'fa-IR';
-    let finalResults = [], finalTitle = "";
+    try {
+        const { query } = req.body;
+        const lang = query.match(/[a-zA-Z]/) ? 'en-US' : 'fa-IR';
+        let finalResults = [], finalTitle = "";
 
-    const intent = await analyzeQueryIntent(query);
-    console.log(`Intent: ${intent.type}, Value: ${intent.value}`);
+        const intent = await analyzeQueryIntent(query);
+        console.log(`[SERVER LOG] Intent: ${intent.type}, Value: ${intent.value}`);
 
-    switch (intent.type) {
-        case 'genre_search':
-            const genreId = genreNameToIdMap.get(intent.value.toLowerCase());
-            if (genreId) {
-                const data = await discoverByGenre(genreId, lang);
-                finalResults = data.results || [];
-                finalTitle = lang === 'fa-IR' ? `ژانر ${genreMap.get(genreId)}` : `${intent.value} Movies`;
-            }
-            break;
-        case 'actor_search':
-            const personData = await searchTMDB('person', intent.value, lang);
-            const person = personData.results?.[0];
-            if (person) {
-                const data = await findMoviesWithActor(person.id, lang);
-                finalResults = [...(data.cast || []), ...(data.crew || [])]
-                    .filter(item => item.poster_path && (item.title || item.name))
-                    .sort((a, b) => b.popularity - a.popularity);
-                finalTitle = lang === 'fa-IR' ? `آثار ${person.name}` : `Works of ${person.name}`;
-            }
-            break;
-        case 'specific_movie_search':
-            const movieData = await searchTMDB('movie', intent.value, lang);
-            const movie = movieData.results?.[0];
-            if (movie) {
-                const data = await findSimilarMovies(movie.id, lang);
-                finalResults = data.results || [];
-                finalTitle = lang === 'fa-IR' ? `مشابه «${movie.title}»` : `Similar to "${movie.title}"`;
-            }
-            break;
-        case 'context_search':
-            const aiSuggestedTitle = await findMovieByContext(intent.value);
-            if(aiSuggestedTitle){
-                const data = await searchTMDB('multi', aiSuggestedTitle, lang);
-                finalResults = data.results || [];
-                finalTitle = `نتیجه یافت‌شده برای «${intent.value}»`;
-            }
-            break;
-        default:
-            const searchData = await searchTMDB('multi', query, lang);
-            finalResults = searchData.results || [];
-            finalTitle = `نتایج برای «${query}»`;
+        switch (intent.type) {
+            case 'genre_search':
+                const genreId = genreNameToIdMap.get(intent.value.toLowerCase());
+                if (genreId) {
+                    const data = await discoverByGenre(genreId, lang);
+                    finalResults = data.results || [];
+                    finalTitle = lang === 'fa-IR' ? `ژانر ${genreMap.get(genreId)}` : `${intent.value} Movies`;
+                }
+                break;
+            case 'actor_search':
+                const personData = await searchTMDB('person', intent.value, lang);
+                const person = personData.results?.[0];
+                if (person) {
+                    const data = await findMoviesWithActor(person.id, lang);
+                    finalResults = [...(data.cast || []), ...(data.crew || [])].filter(i => i.poster_path && (i.title || i.name)).sort((a, b) => b.popularity - a.popularity);
+                    finalTitle = lang === 'fa-IR' ? `آثار ${person.name}` : `Works of ${person.name}`;
+                }
+                break;
+            case 'specific_movie_search':
+                const movieData = await searchTMDB('movie', intent.value, lang);
+                const movie = movieData.results?.[0];
+                if (movie) {
+                    const data = await findSimilarMovies(movie.id, lang);
+                    finalResults = data.results || [];
+                    finalTitle = lang === 'fa-IR' ? `مشابه «${movie.title}»` : `Similar to "${movie.title}"`;
+                }
+                break;
+            case 'context_search':
+                const aiSuggestedTitle = await findMovieByContext(intent.value);
+                if(aiSuggestedTitle){
+                    const data = await searchTMDB('multi', aiSuggestedTitle, lang);
+                    finalResults = data.results || [];
+                    finalTitle = `نتیجه یافت‌شده برای «${intent.value}»`;
+                }
+                break;
+            default:
+                const searchData = await searchTMDB('multi', query, lang);
+                finalResults = searchData.results || [];
+                finalTitle = `نتایج برای «${query}»`;
+        }
+
+        console.log(`[SERVER LOG] Found ${finalResults.length} results for query: "${query}"`);
+
+        const user = req.user;
+        if (user.isPro) { if (user.proSearchesLeft > 0) user.proSearchesLeft -= 1; }
+        else { user.searchesLeft -= 1; }
+        await user.save();
+
+        const resultsWithGenres = mapGenresToMovies(finalResults);
+        res.json({
+            results: resultsWithGenres,
+            title: finalTitle,
+            userData: { isPro: user.isPro, searchesLeft: user.searchesLeft, proSearchesLeft: user.proSearchesLeft }
+        });
+    } catch (error) {
+        console.error("[SERVER ERROR] in /api/search:", error);
+        res.status(500).json({ error: "Internal server error during search." });
     }
-
-    const user = req.user;
-    if (user.isPro) { if (user.proSearchesLeft > 0) user.proSearchesLeft -= 1; }
-    else { user.searchesLeft -= 1; }
-    await user.save();
-
-    const resultsWithGenres = mapGenresToMovies(finalResults);
-    res.json({
-        results: resultsWithGenres,
-        title: finalTitle,
-        userData: { isPro: user.isPro, searchesLeft: user.searchesLeft, proSearchesLeft: user.proSearchesLeft }
-    });
 });
 
 app.get("/api/details/:type/:id", requireLoginAndCheckSearches, async (req, res) => {
-    const { type, id } = req.params;
-    const lang = req.query.lang || 'fa-IR';
     try {
+        const { type, id } = req.params;
+        const lang = req.query.lang || 'fa-IR';
         const details = await getDetails(type, id, lang);
         const director = details.credits?.crew.find((m) => m.job === 'Director');
         const cast = details.credits?.cast.slice(0, 10);
-        res.json({ ...details, director: director || null, cast: cast || [] });
+
+        const user = req.user;
+        if (!user.isPro) {
+            user.searchesLeft -= 1;
+            await user.save();
+        }
+
+        res.json({
+            ...details, director: director || null, cast: cast || [],
+            userData: { isPro: user.isPro, searchesLeft: user.searchesLeft, proSearchesLeft: user.proSearchesLeft }
+        });
     } catch (error) {
+        console.error("[SERVER ERROR] in /api/details:", error);
         res.status(404).json({error: "Details not found."});
     }
 });
 
 app.get("/api/trending", async (req, res) => {
     try {
+        console.log("[SERVER LOG] GET /api/trending");
         const data = await (await fetch(`https://api.themoviedb.org/3/trending/all/day?api_key=${TMDB_API_KEY}&language=fa-IR`)).json();
         const resultsWithGenres = mapGenresToMovies(data.results || []);
         res.json({ ...data, results: resultsWithGenres });
     } catch (error) {
+        console.error("[SERVER ERROR] in /api/trending:", error);
         res.status(500).json({error: "Could not fetch trending movies."});
     }
 });
