@@ -125,9 +125,201 @@
 // });
 //
 // app.listen(PORT, () => console.log(`✅ Server is running on http://localhost:${PORT}`));
+//
+
+//
+// import 'dotenv/config';
+// import express from "express";
+// import fetch from "node-fetch";
+// import OpenAI from "openai";
+// import cors from "cors";
+//
+// const app = express();
+// app.use(cors());
+// app.use(express.json());
+//
+// const PORT = process.env.PORT || 4000;
+// const TMDB_API_KEY = process.env.TMDB_API_KEY;
+// const OPENAI_API_KEY = "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";
+//
+// if (!TMDB_API_KEY || !OPENAI_API_KEY) {
+//     console.error("FATAL ERROR: API keys are missing. Check your .env file.");
+//     process.exit(1);
+// }
+// const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+//
+// // --- مدیریت ژانرها ---
+// let genreMap = new Map();
+// let genreNameToIdMap = new Map();
+//
+// async function initializeGenres() {
+//     try {
+//         const [faGenres, enGenres] = await Promise.all([
+//             fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${TMDB_API_KEY}&language=fa-IR`).then(res => res.json()),
+//             fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${TMDB_API_KEY}&language=en-US`).then(res => res.json())
+//         ]);
+//
+//         faGenres.genres.forEach(genre => genreMap.set(genre.id, genre.name));
+//         enGenres.genres.forEach(genre => genreNameToIdMap.set(genre.name.toLowerCase(), genre.id));
+//
+//         console.log("✅ Genres initialized successfully (Persian & English).");
+//     } catch (error) {
+//         console.error("❌ Failed to initialize genres:", error);
+//     }
+// }
+//
+// function mapGenresToMovies(movies) {
+//     return movies.map(movie => ({
+//         ...movie,
+//         genres: movie.genre_ids ? movie.genre_ids.map(id => genreMap.get(id)).filter(Boolean) : []
+//     }));
+// }
+//
+// // --- توابع تخصصی TMDB ---
+// async function searchTMDB(type, query, lang = 'fa-IR') {
+//     const url = `https://api.themoviedb.org/3/search/${type}?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&language=${lang}`;
+//     return (await fetch(url)).json();
+// }
+// async function discoverByGenre(genreId, lang = 'fa-IR') {
+//     const url = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_genres=${genreId}&sort_by=popularity.desc&language=${lang}`;
+//     return (await fetch(url)).json();
+// }
+// async function findMoviesWithActor(personId, lang = 'fa-IR') {
+//     const url = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_cast=${personId}&sort_by=popularity.desc&language=${lang}`;
+//     return (await fetch(url)).json();
+// }
+// async function findSimilarMovies(movieId, lang = 'fa-IR') {
+//     const url = `https://api.themoviedb.org/3/movie/${movieId}/similar?api_key=${TMDB_API_KEY}&language=${lang}`;
+//     return (await fetch(url)).json();
+// }
+//
+// // --- هوش مصنوعی ---
+// async function analyzeQueryIntent(query) {
+//     const genreList = Array.from(genreNameToIdMap.keys()).join(', ');
+//     const prompt = `
+//         Analyze the user's search query (in Persian) to determine their primary intent from the following types: 'genre_search', 'actor_search', 'specific_movie_search', 'context_search'.
+//         Query: "${query}"
+//         If the intent is 'genre_search', identify the corresponding English genre name from this list: [${genreList}].
+//         Return JSON: { "type": "...", "value": "..." }.
+//         Examples:
+//         - Query: "فیلم ترسناک" -> { "type": "genre_search", "value": "Horror" }
+//         - Query: "تام هنکس" -> { "type": "actor_search", "value": "تام هنکس" }
+//         - Query: "Inception" -> { "type": "specific_movie_search", "value": "Inception" }
+//         - Query: "مردی که حافظه اش را از دست داده" -> { "type": "context_search", "value": "مردی که حافظه اش را از دست داده" }
+//     `;
+//     try {
+//         const completion = await openai.chat.completions.create({
+//             model: "gpt-4o-mini", messages: [{ role: "user", content: prompt }], response_format: { type: "json_object" },
+//         });
+//         return JSON.parse(completion.choices[0].message.content);
+//     } catch (e) {
+//         console.error("AI intent analysis failed, falling back to context search.", e);
+//         return { type: 'context_search', value: query };
+//     }
+// }
+// async function findMovieByContext(query) {
+//     const prompt = `A user provided a phrase (dialogue, character, or theme): "${query}". Identify the original English movie/show title. Return JSON: { "title": "The English Title" } or null.`;
+//     try {
+//         const completion = await openai.chat.completions.create({ model: "gpt-4o-mini", messages: [{ role: "user", content: prompt }], response_format: { type: "json_object" } });
+//         return JSON.parse(completion.choices[0].message.content).title;
+//     } catch (error) {
+//         return null;
+//     }
+// }
+//
+// // --- روت جدید برای جزئیات ---
+// app.get("/api/details/:type/:id", async (req, res) => {
+//     const { type, id } = req.params;
+//     const lang = req.query.lang || 'fa-IR';
+//
+//     if (!type || !id || (type !== 'movie' && type !== 'tv')) {
+//         return res.status(400).json({ error: "Invalid type or ID" });
+//     }
+//     try {
+//         const url = `https://api.themoviedb.org/3/${type}/${id}?api_key=${TMDB_API_KEY}&language=${lang}&append_to_response=credits`;
+//         const details = await (await fetch(url)).json();
+//         const director = details.credits?.crew.find((member) => member.job === 'Director');
+//         const cast = details.credits?.cast.slice(0, 10);
+//         res.json({ ...details, director: director || null, cast: cast || [] });
+//     } catch (err) {
+//         res.status(500).json({ error: "Could not fetch details." });
+//     }
+// });
+//
+// // --- روت اصلی جستجو ---
+// app.post("/api/search", async (req, res) => {
+//     const { query } = req.body;
+//     if (!query) return res.status(400).json({ error: "Query is required" });
+//     try {
+//         const lang = query.match(/[a-zA-Z]/) ? 'en-US' : 'fa-IR';
+//         const intent = await analyzeQueryIntent(query);
+//         console.log(`Query: "${query}", Intent: ${intent.type}, Value: ${intent.value}`);
+//         let finalResults = [], finalTitle = "";
+//
+//         switch (intent.type) {
+//             case 'genre_search':
+//                 const genreId = genreNameToIdMap.get(intent.value.toLowerCase());
+//                 if (genreId) {
+//                     const genreMovies = await discoverByGenre(genreId, lang);
+//                     finalResults = genreMovies.results || [];
+//                     finalTitle = lang === 'fa-IR' ? `محبوب‌ترین‌های ژانر ${genreMap.get(genreId)}` : `Popular ${intent.value} Movies`;
+//                 }
+//                 break;
+//             case 'actor_search':
+//                 const personSearch = await searchTMDB('person', intent.value, lang);
+//                 const topPerson = personSearch.results?.[0];
+//                 if (topPerson) {
+//                     const actorMovies = await findMoviesWithActor(topPerson.id, lang);
+//                     finalResults = actorMovies.results || [];
+//                     finalTitle = lang === 'fa-IR' ? `فیلم‌های با حضور ${topPerson.name}` : `Movies featuring ${topPerson.name}`;
+//                 }
+//                 break;
+//             case 'specific_movie_search':
+//                 const movieSearch = await searchTMDB('movie', intent.value, lang);
+//                 const topMovie = movieSearch.results?.[0];
+//                 if(topMovie) {
+//                     const similarMovies = await findSimilarMovies(topMovie.id, lang);
+//                     finalResults = similarMovies.results || [];
+//                     finalTitle = lang === 'fa-IR' ? `آثاری با حال و هوای «${topMovie.title}»` : `Works with the vibe of "${topMovie.title}"`;
+//                 }
+//                 break;
+//             case 'context_search':
+//                 const aiSuggestedTitle = await findMovieByContext(intent.value);
+//                 if (aiSuggestedTitle) {
+//                     const contextSearch = await searchTMDB('multi', aiSuggestedTitle, lang);
+//                     finalResults = contextSearch.results || [];
+//                     finalTitle = lang === 'fa-IR' ? `نتیجه یافت‌شده برای: «${intent.value}»` : `Result for: "${intent.value}"`;
+//                 }
+//                 break;
+//         }
+//
+//         if (finalResults.length === 0) {
+//             finalTitle = lang === 'fa-IR' ? `نتیجه‌ای برای «${query}» یافت نشد` : `No results found for "${query}"`;
+//         }
+//         const resultsWithGenres = mapGenresToMovies(finalResults);
+//         return res.json({ results: resultsWithGenres, title: finalTitle });
+//     } catch (err) {
+//         res.status(500).json({ error: "Internal server error." });
+//     }
+// });
+//
+// // --- روت ترندها ---
+// app.get("/api/trending", async (req, res) => {
+//     try {
+//         const url = `https://api.themoviedb.org/3/trending/all/day?api_key=${TMDB_API_KEY}&language=fa-IR`;
+//         const data = await (await fetch(url)).json();
+//         const resultsWithGenres = mapGenresToMovies(data.results);
+//         res.json({ ...data, results: resultsWithGenres });
+//     } catch (err) { res.status(500).json({ error: 'Could not get trending list.' }); }
+// });
+//
+// // --- شروع به کار سرور ---
+// app.listen(PORT, async () => {
+//     await initializeGenres();
+//     console.log(`✅ Server is running on http://localhost:${PORT}`);
+// });
 
 
-// file: server/index.js
 
 import 'dotenv/config';
 import express from "express";
@@ -139,9 +331,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 4000;
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY || "YOUR_OPENAI_KEY";
 
 if (!TMDB_API_KEY || !OPENAI_API_KEY) {
     console.error("FATAL ERROR: API keys are missing. Check your .env file.");
@@ -176,7 +368,7 @@ function mapGenresToMovies(movies) {
     }));
 }
 
-// --- توابع تخصصی TMDB ---
+// --- توابع TMDB ---
 async function searchTMDB(type, query, lang = 'fa-IR') {
     const url = `https://api.themoviedb.org/3/search/${type}?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&language=${lang}`;
     return (await fetch(url)).json();
@@ -194,45 +386,111 @@ async function findSimilarMovies(movieId, lang = 'fa-IR') {
     return (await fetch(url)).json();
 }
 
-// --- هوش مصنوعی ---
+// --- AI intent analysis ---
 async function analyzeQueryIntent(query) {
     const genreList = Array.from(genreNameToIdMap.keys()).join(', ');
     const prompt = `
-        Analyze the user's search query (in Persian) to determine their primary intent from the following types: 'genre_search', 'actor_search', 'specific_movie_search', 'context_search'.
-        Query: "${query}"
-        If the intent is 'genre_search', identify the corresponding English genre name from this list: [${genreList}].
-        Return JSON: { "type": "...", "value": "..." }.
+        Analyze the user's search query (in Persian) to determine their primary intent from:
+        - 'genre_search'
+        - 'actor_search'
+        - 'specific_movie_search'
+        - 'context_search'
+        - 'character_search'
+        - 'emotion_search'
+
+        If 'genre_search', return the corresponding English genre name from: [${genreList}].
+        If 'character_search', return the character's name in English (if known).
+        If 'emotion_search':
+            - Identify the user's main emotional state, even if it is not explicitly stated.
+            - Infer from context. For example:
+              "من cut کردم" -> sad
+              "از رابطه اومدم بیرون" -> sad
+              "تازه نامزد کردم" -> happy/romantic
+              "شغل جدید گرفتم" -> happy
+              "کسی رو از دست دادم" -> sad
+            - Return the core emotion in English (e.g., "happy", "sad", "romantic", "angry", "scared").
+
         Examples:
-        - Query: "فیلم ترسناک" -> { "type": "genre_search", "value": "Horror" }
-        - Query: "تام هنکس" -> { "type": "actor_search", "value": "تام هنکس" }
-        - Query: "Inception" -> { "type": "specific_movie_search", "value": "Inception" }
-        - Query: "مردی که حافظه اش را از دست داده" -> { "type": "context_search", "value": "مردی که حافظه اش را از دست داده" }
+        - "فیلم ترسناک" -> { "type": "genre_search", "value": "Horror" }
+        - "تام هنکس" -> { "type": "actor_search", "value": "تام هنکس" }
+        - "Inception" -> { "type": "specific_movie_search", "value": "Inception" }
+        - "elliot" -> { "type": "character_search", "value": "Elliot" }
+        - "من خیلی ناراحتم" -> { "type": "emotion_search", "value": "sad" }
+        - "cut کردم" -> { "type": "emotion_search", "value": "sad" }
+        - "تازه نامزد کردم" -> { "type": "emotion_search", "value": "romantic" }
+
+        Query: "${query}"
+        Return only JSON: { "type": "...", "value": "..." }
     `;
     try {
         const completion = await openai.chat.completions.create({
-            model: "gpt-4o-mini", messages: [{ role: "user", content: prompt }], response_format: { type: "json_object" },
+            model: "gpt-4o-mini",
+            messages: [{ role: "user", content: prompt }],
+            response_format: { type: "json_object" },
         });
         return JSON.parse(completion.choices[0].message.content);
     } catch (e) {
-        console.error("AI intent analysis failed, falling back to context search.", e);
+        console.error("AI intent analysis failed:", e);
         return { type: 'context_search', value: query };
     }
 }
+
+// --- AI helpers ---
 async function findMovieByContext(query) {
     const prompt = `A user provided a phrase (dialogue, character, or theme): "${query}". Identify the original English movie/show title. Return JSON: { "title": "The English Title" } or null.`;
     try {
-        const completion = await openai.chat.completions.create({ model: "gpt-4o-mini", messages: [{ role: "user", content: prompt }], response_format: { type: "json_object" } });
+        const completion = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [{ role: "user", content: prompt }],
+            response_format: { type: "json_object" }
+        });
         return JSON.parse(completion.choices[0].message.content).title;
-    } catch (error) {
+    } catch {
         return null;
     }
 }
 
-// --- روت جدید برای جزئیات ---
+async function findMovieByCharacter(characterName) {
+    const prompt = `A user mentioned a character name: "${characterName}".
+    Identify the original English movie or TV show title this character is from.
+    Return JSON: { "title": "The English Title" } or null.`;
+    try {
+        const completion = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [{ role: "user", content: prompt }],
+            response_format: { type: "json_object" }
+        });
+        return JSON.parse(completion.choices[0].message.content).title;
+    } catch {
+        return null;
+    }
+}
+
+const emotionGenreMap = {
+    happy: ["Comedy", "Family", "Adventure"],
+    sad: ["Drama", "Romance"],
+    romantic: ["Romance", "Drama"],
+    angry: ["Action", "Thriller"],
+    scared: ["Horror", "Thriller"]
+};
+
+async function findMoviesByEmotion(emotion, lang = 'fa-IR') {
+    const genres = emotionGenreMap[emotion.toLowerCase()] || [];
+    let allResults = [];
+    for (const g of genres) {
+        const genreId = genreNameToIdMap.get(g.toLowerCase());
+        if (genreId) {
+            const genreMovies = await discoverByGenre(genreId, lang);
+            allResults = [...allResults, ...(genreMovies.results || [])];
+        }
+    }
+    return allResults;
+}
+
+// --- جزئیات فیلم/سریال ---
 app.get("/api/details/:type/:id", async (req, res) => {
     const { type, id } = req.params;
     const lang = req.query.lang || 'fa-IR';
-
     if (!type || !id || (type !== 'movie' && type !== 'tv')) {
         return res.status(400).json({ error: "Invalid type or ID" });
     }
@@ -242,15 +500,16 @@ app.get("/api/details/:type/:id", async (req, res) => {
         const director = details.credits?.crew.find((member) => member.job === 'Director');
         const cast = details.credits?.cast.slice(0, 10);
         res.json({ ...details, director: director || null, cast: cast || [] });
-    } catch (err) {
+    } catch {
         res.status(500).json({ error: "Could not fetch details." });
     }
 });
 
-// --- روت اصلی جستجو ---
+// --- جستجو ---
 app.post("/api/search", async (req, res) => {
     const { query } = req.body;
     if (!query) return res.status(400).json({ error: "Query is required" });
+
     try {
         const lang = query.match(/[a-zA-Z]/) ? 'en-US' : 'fa-IR';
         const intent = await analyzeQueryIntent(query);
@@ -266,6 +525,7 @@ app.post("/api/search", async (req, res) => {
                     finalTitle = lang === 'fa-IR' ? `محبوب‌ترین‌های ژانر ${genreMap.get(genreId)}` : `Popular ${intent.value} Movies`;
                 }
                 break;
+
             case 'actor_search':
                 const personSearch = await searchTMDB('person', intent.value, lang);
                 const topPerson = personSearch.results?.[0];
@@ -275,6 +535,7 @@ app.post("/api/search", async (req, res) => {
                     finalTitle = lang === 'fa-IR' ? `فیلم‌های با حضور ${topPerson.name}` : `Movies featuring ${topPerson.name}`;
                 }
                 break;
+
             case 'specific_movie_search':
                 const movieSearch = await searchTMDB('movie', intent.value, lang);
                 const topMovie = movieSearch.results?.[0];
@@ -284,6 +545,7 @@ app.post("/api/search", async (req, res) => {
                     finalTitle = lang === 'fa-IR' ? `آثاری با حال و هوای «${topMovie.title}»` : `Works with the vibe of "${topMovie.title}"`;
                 }
                 break;
+
             case 'context_search':
                 const aiSuggestedTitle = await findMovieByContext(intent.value);
                 if (aiSuggestedTitle) {
@@ -292,29 +554,52 @@ app.post("/api/search", async (req, res) => {
                     finalTitle = lang === 'fa-IR' ? `نتیجه یافت‌شده برای: «${intent.value}»` : `Result for: "${intent.value}"`;
                 }
                 break;
+
+            case 'character_search':
+                const movieFromCharacter = await findMovieByCharacter(intent.value);
+                if (movieFromCharacter) {
+                    const characterSearch = await searchTMDB('multi', movieFromCharacter, lang);
+                    finalResults = characterSearch.results || [];
+                    finalTitle = lang === 'fa-IR'
+                        ? `نتایج مرتبط با شخصیت «${intent.value}» (${movieFromCharacter})`
+                        : `Results for character "${intent.value}" (${movieFromCharacter})`;
+                }
+                break;
+
+            case 'emotion_search':
+                finalResults = await findMoviesByEmotion(intent.value, lang);
+                // finalTitle = lang === 'fa-IR'
+                //     ? `فیلم‌های مناسب حس ${intent.value}`
+                //     : `Movies for feeling ${intent.value}`;
+                break;
         }
 
         if (finalResults.length === 0) {
             finalTitle = lang === 'fa-IR' ? `نتیجه‌ای برای «${query}» یافت نشد` : `No results found for "${query}"`;
         }
+
         const resultsWithGenres = mapGenresToMovies(finalResults);
         return res.json({ results: resultsWithGenres, title: finalTitle });
+
     } catch (err) {
+        console.error(err);
         res.status(500).json({ error: "Internal server error." });
     }
 });
 
-// --- روت ترندها ---
+// --- ترندها ---
 app.get("/api/trending", async (req, res) => {
     try {
         const url = `https://api.themoviedb.org/3/trending/all/day?api_key=${TMDB_API_KEY}&language=fa-IR`;
         const data = await (await fetch(url)).json();
         const resultsWithGenres = mapGenresToMovies(data.results);
         res.json({ ...data, results: resultsWithGenres });
-    } catch (err) { res.status(500).json({ error: 'Could not get trending list.' }); }
+    } catch {
+        res.status(500).json({ error: 'Could not get trending list.' });
+    }
 });
 
-// --- شروع به کار سرور ---
+// --- شروع ---
 app.listen(PORT, async () => {
     await initializeGenres();
     console.log(`✅ Server is running on http://localhost:${PORT}`);

@@ -365,7 +365,9 @@ function App() {
     return (
         <div className="App">
             <header className="app-header">
-                <h1>Like That</h1>
+                {/*<h1>Like That</h1>*/}
+                <img src="/assets/images/image.png" height={150} width={150} />
+
                 <p style={{ fontSize: "20px", textTransform: "capitalize" }}>The First and The most Powerful Intelligent Movies/Series/Anime Search engine</p>
             </header>
             <main>
