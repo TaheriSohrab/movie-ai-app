@@ -255,7 +255,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import './App.css';
 
-const api = axios.create({ baseURL: process.env.REACT_APP_SERVER_URL || 'http://localhost:3001' });
+const api = axios.create({ baseURL: process.env.REACT_APP_SERVER_URL || 'http://localhost:4000' });
 api.interceptors.request.use(config => {
     const token = localStorage.getItem('jwtToken');
     if (token) config.headers.Authorization = `Bearer ${token}`;
@@ -367,7 +367,7 @@ function App() {
     const fetchTrending = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${process.env.REACT_APP_SERVER_URL || 'http://localhost:3001'}/api/trending`);
+            const response = await axios.get(`${process.env.REACT_APP_SERVER_URL || 'http://localhost:4000'}/api/trending`);
             const trending = response.data.results || [];
             setTrendingMovies(trending);
             setMovies(trending);
@@ -378,7 +378,7 @@ function App() {
     useEffect(() => { if (!authLoading) fetchTrending(); }, [authLoading, fetchTrending]);
 
     const handleLogoClick = () => { setSearchQuery(''); setError(null); setMovies(trendingMovies); setResultsTitle('محبوب‌ترین‌های امروز'); };
-    const handleLogin = () => { window.location.href = `${process.env.REACT_APP_SERVER_URL || 'http://localhost:3001'}/auth/google`; };
+    const handleLogin = () => { window.location.href = `${process.env.REACT_APP_SERVER_URL || 'http://localhost:4000'}/auth/google`; };
     const closeModal = () => { setSelectedMovie(null); setDetailedMovie(null); };
 
     if (authLoading) return <div className="loading-container"><div className="spinner"></div></div>;
@@ -520,7 +520,7 @@ const UpgradeModal = ({ onClose }) => (
             <div className="subscription-tiers">
                 <div className="tier">
                     <div className="tier-icon">🎟️</div><h3>Cinephile</h3>
-                    <div className="tier-price">۵۰,۰۰۰ تومان <span>/ ماه</span></div>
+                    <div className="tier-price">۵۰,۰۰۰ تومان <span>/ 50 جستجو</span></div>
                     <ul className="tier-features">
                         <li>✓ جستجوی نامحدود</li>
                         <li>✓ **جستجوی احساسی و مضمونی**</li>
@@ -532,7 +532,7 @@ const UpgradeModal = ({ onClose }) => (
                 <div className="tier popular">
                     <span className="popular-badge">پیشنهاد ویژه</span>
                     <div className="tier-icon">🎬</div><h3>Director's Cut</h3>
-                    <div className="tier-price">۷۰,۰۰۰ تومان <span>/ ماه</span></div>
+                    <div className="tier-price">۷۰,۰۰۰ تومان <span>/ 70 جستجو</span></div>
                     <ul className="tier-features">
                         <li>✓ تمام ویژگی‌های Cinephile</li>
                         <li>✓ **جستجو بر اساس کارگردان**</li>
