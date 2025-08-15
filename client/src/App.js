@@ -251,6 +251,7 @@
 // };
 //
 // export default App;
+
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import './App.css';
@@ -367,7 +368,7 @@ function App() {
     const fetchTrending = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${process.env.REACT_APP_SERVER_URL || 'http://localhost:4000'}/api/trending`);
+            const response = await axios.get('https://api.themoviedb.org/3/trending/all/day?api_key=4f7f60c1464bc3126f22bdb955d9192e&language=fa-IR&include_adult=false`');
             const trending = response.data.results || [];
             setTrendingMovies(trending);
             setMovies(trending);
@@ -378,7 +379,7 @@ function App() {
     useEffect(() => { if (!authLoading) fetchTrending(); }, [authLoading, fetchTrending]);
 
     const handleLogoClick = () => { setSearchQuery(''); setError(null); setMovies(trendingMovies); setResultsTitle('محبوب‌ترین‌های امروز'); };
-    const handleLogin = () => { window.location.href = `${process.env.REACT_APP_SERVER_URL || 'http://localhost:4000'}/auth/google`; };
+    const handleLogin = () => { window.location.href = `https://localhost:4000/auth/google`; };
     const closeModal = () => { setSelectedMovie(null); setDetailedMovie(null); };
 
     if (authLoading) return <div className="loading-container"><div className="spinner"></div></div>;
@@ -397,7 +398,7 @@ function App() {
                         </div>
                     ) : ( <button onClick={handleLogin} className="login-btn">ورود با گوگل</button> )}
                 </div>
-                <h1 onClick={handleLogoClick} style={{ cursor: 'pointer' }}>Like That</h1>
+                <img src="/assets/images/image.png" height={150} width={150} onClick={handleLogoClick} style={{ cursor: 'pointer' }}/>
                 <p style={{fontSize:"20px",textTransform:"capitalize"}}>The First and The most Powerful Intelligent Movies/Series/Anime Search engine</p>
             </header>
             <main>

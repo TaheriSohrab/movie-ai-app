@@ -287,6 +287,7 @@
 // --- 1. IMPORTS & INITIALIZATION ---
 // ---------------------------------
 
+
 import 'dotenv/config';
 import express from 'express';
 import mongoose from 'mongoose';
@@ -462,4 +463,5 @@ app.get("/api/trending", async (req, res) => {
 app.listen(PORT, async () => {
     await initializeGenres();
     console.log(`✅ Server is running on port ${PORT}`);
+    console.log('SeenTa is here')
 });
